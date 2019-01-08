@@ -23,6 +23,7 @@
 #define BOUNDARY_X 100
 #define BOUNDARY_Y 100
 #define BOUNDARY_Z 100
+#define RANDOM_MAX 10000000
 
 using namespace std;
 

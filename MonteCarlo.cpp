@@ -154,31 +154,33 @@ double Model_Segment::MC_NEIGHBORPOTENTIAL(int index)
 void Model_Segment::MonteCarlo()
 {
     mt19937 engine((unsigned int)time(NULL));
-    uniform_int_distribution<int> distribution(0, nParticle - 1);
+    uniform_int_distribution<int> distribution_Segment(0, nParticle-1);
+    uniform_int_distribution<int> distribution(0, RANDOM_MAX-1);
+    auto generator_Segment = bind(distribution_Segment, engine);
     auto generator = bind(distribution, engine);
     pot_step = 0;
     Set_Params();
-    //Mol2_File_Write(true);
+    Mol2_File_Write(true);
     double * temp_coordinate = (double *)malloc(3 * sizeof(double));
     int num_prev, rSegment;
     double distance_prev2;
     double pot_pre, pot_after, harmonic_pre, harmonic_after, theta, phi, radius, sin_theta;
     int selected_linked_segment_num;
+    MC_CONSTRUCT_CELL();
     int pre_cell_position[3], after_cell_position[3];
     Node *temp_Segment;
     list<int> * pre_cell, * after_cell;
     list<int>::iterator itor;
     int status = 0;
-    MC_CONSTRUCT_CELL();
     for(int mccount=0; mccount<=Limit_Cycle; mccount++)
     {
         for(int i=0; i<nParticle; i++)
         {
             //calc before potential
             pot_pre = 0; pot_after = 0; harmonic_pre = 0; harmonic_after = 0;
-            rSegment = generator();
+            rSegment = (int)generator_Segment();
             temp_Segment = &Segment[rSegment];
-            //lennar -jones potential
+            //lennard-jones potential
             pot_pre += MC_NEIGHBORPOTENTIAL(rSegment);
             
             //harmonic potential
@@ -245,9 +247,20 @@ void Model_Segment::MonteCarlo()
             double delta_pot = (-pot_after + pot_pre) * inv_kT_0;
             
             //reject
-            if(delta_pot <= 0)
+            if(delta_pot <= -1023)
             {
-                if(exp(delta_pot) < (double)generator()*inv_RAND_MAX)
+                memcpy(temp_Segment->coordinate, temp_coordinate, 3 * sizeof(double));
+                pot_after = pot_pre;
+                
+                if(status)
+                {
+                    pre_cell->push_back(rSegment);
+                    after_cell->pop_back();
+                }
+            }
+            else if(delta_pot <= 0)
+            {
+                if(fast_exp(delta_pot) < (double)generator() * inv_RAND_MAX)
                 {
                     memcpy(temp_Segment->coordinate, temp_coordinate, 3 * sizeof(double));
                     pot_after = pot_pre;
@@ -266,7 +279,7 @@ void Model_Segment::MonteCarlo()
         if(!(mccount % step_AVG) && mccount)
         {
             Write_State(mccount);
-            //Mol2_File_Write(false);
+            Mol2_File_Write(false);
             Evaluate_Properties(mccount);
         }
     }

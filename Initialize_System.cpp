@@ -3,15 +3,15 @@
 void Model_Segment::Initialize_System(int nTypes)
 {
     nParticle = 0;
-    inv_RAND_MAX = 1.0 / (double)RAND_MAX;
+    inv_RAND_MAX = 1.0/double(RAND_MAX);
     //dedronized polymer
     if(nTypes == 1)
     {
         double x = Half_Boundary_X, y = Half_Boundary_Y, z = Half_Boundary_Z;
         for(int i=0;i<dp_backbone;i++)
         {
-            double torsional_angle = ((double)rand()*inv_RAND_MAX)*2*PI;
-            double bond_angle = ((double)rand()*inv_RAND_MAX)*2*PI;
+            double torsional_angle = ((double)rand() * inv_RAND_MAX)*2*PI;
+            double bond_angle = ((double)rand() * inv_RAND_MAX)*2*PI;
             Segment[i].coordinate[0] = x + bond_length_harmonic * sin(bond_angle)*cos(torsional_angle);
             Segment[i].coordinate[1] = y + bond_length_harmonic * sin(bond_angle)*sin(torsional_angle);
             Segment[i].coordinate[2] = z + bond_length_harmonic * cos(bond_angle);

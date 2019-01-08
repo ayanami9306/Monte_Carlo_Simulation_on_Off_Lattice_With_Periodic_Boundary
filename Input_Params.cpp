@@ -30,15 +30,14 @@ void Model_Segment::Set_Params()
 {
     rcut2 = rcut*rcut; //rcut unit : sigma
     rMax = bond_length_harmonic;
-    inv_RAND_MAX = 1.0 / (double)nParticle;
+    inv_rcut = 1.0 / rcut;
     double inverse_rcut6 = 1.0 / pow(rcut2, 3.0);
     potential_rcut = 4 * epsilon * inverse_rcut6 * (inverse_rcut6 - 1.0);
     
     bond_length_harmonic2 = bond_length_harmonic * bond_length_harmonic;
-    inv_RAND_MAX_scaled_by_360 = 360.0 / (double)nParticle;
-    inv_RAND_MAX_scaled_by_rMax = rMax / (double)nParticle;
-    
-    inv_rcut = 1.0 / rcut;
+    inv_RAND_MAX_scaled_by_360 = 360.0 / (double)RANDOM_MAX;
+    inv_RAND_MAX_scaled_by_rMax = rMax / (double)RANDOM_MAX;
+    inv_RAND_MAX = 1.0 / (double)RANDOM_MAX;
     
     inv_step_AVG = 1.0 / (double)step_AVG;
     inv_kT_0 = 1.0 / kT_0;
